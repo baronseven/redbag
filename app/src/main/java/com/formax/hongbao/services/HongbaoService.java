@@ -23,18 +23,18 @@ import java.util.List;
  * Created by Formax on 2016/2/5.
  */
 public class HongbaoService extends AccessibilityService implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String WECHAT_DETAILS_EN = "Details";
-    private static final String WECHAT_DETAILS_CH = "红包详情";
-    private static final String WECHAT_BETTER_LUCK_EN = "Better luck next time!";
-    private static final String WECHAT_BETTER_LUCK_CH = "手慢了";
-    private static final String WECHAT_EXPIRES_CH = "红包已失效";
-    private static final String WECHAT_VIEW_SELF_CH = "查看红包";
-    private static final String WECHAT_VIEW_OTHERS_CH = "领取红包";
-    private static final String WECHAT_NOTIFICATION_TIP = "[钉钉红包]";
-    private static final String WECHAT_LUCKMONEY_RECEIVE_ACTIVITY = "LuckyMoneyReceiveUI";
-    private static final String WECHAT_LUCKMONEY_DETAIL_ACTIVITY = "LuckyMoneyDetailUI";
-    private static final String WECHAT_LUCKMONEY_GENERAL_ACTIVITY = "LauncherUI";
-    private String currentActivityName = WECHAT_LUCKMONEY_GENERAL_ACTIVITY;
+    private static final String DINGTALK_DETAILS_EN = "Details";
+    private static final String DINGTALK_DETAILS_CH = "红包详情";
+    private static final String DINGTALK_BETTER_LUCK_EN = "Better luck next time!";
+    private static final String DINGTALK_BETTER_LUCK_CH = "手慢了";
+    private static final String DINGTALK_EXPIRES_CH = "红包已失效";
+    private static final String DINGTALK_VIEW_SELF_CH = "查看红包";
+    private static final String DINGTALK_VIEW_OTHERS_CH = "拆红包";
+    private static final String DINGTALK_NOTIFICATION_TIP = "[钉钉红包]";
+    private static final String DINGTALK_LUCKMONEY_RECEIVE_ACTIVITY = "LuckyMoneyReceiveUI";
+    private static final String DINGTALK_LUCKMONEY_DETAIL_ACTIVITY = "LuckyMoneyDetailUI";
+    private static final String DINGTALK_LUCKMONEY_GENERAL_ACTIVITY = "ChatMsgActivity";
+    private String currentActivityName = DINGTALK_LUCKMONEY_GENERAL_ACTIVITY;
 
     private AccessibilityNodeInfo rootNodeInfo, mReceiveNode, mUnpackNode;
     private boolean mLuckyMoneyPicked, mLuckyMoneyReceived;
@@ -117,7 +117,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
             getPackageManager().getActivityInfo(componentName, 0);
             currentActivityName = componentName.flattenToShortString();
         } catch (PackageManager.NameNotFoundException e) {
-            currentActivityName = WECHAT_LUCKMONEY_GENERAL_ACTIVITY;
+            currentActivityName = DINGTALK_LUCKMONEY_GENERAL_ACTIVITY;
         }
     }
 
@@ -127,7 +127,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED || eventSource == null)
             return false;
 
-        List<AccessibilityNodeInfo> nodes = eventSource.findAccessibilityNodeInfosByText(WECHAT_NOTIFICATION_TIP);
+        List<AccessibilityNodeInfo> nodes = eventSource.findAccessibilityNodeInfosByText(DINGTALK_NOTIFICATION_TIP);
         if (!nodes.isEmpty()) {
             AccessibilityNodeInfo nodeToClick = nodes.get(0);
             CharSequence contentDescription = nodeToClick.getContentDescription();
@@ -147,7 +147,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         // Not a hongbao
         String tip = event.getText().toString();
-        if (!tip.contains(WECHAT_NOTIFICATION_TIP)) return true;
+        if (!tip.contains(DINGTALK_NOTIFICATION_TIP)) return true;
 
         Parcelable parcelable = event.getParcelableData();
         if (parcelable instanceof Notification) {
@@ -206,8 +206,8 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         /* 聊天会话窗口，遍历节点匹配“领取红包”和"查看红包" */
         AccessibilityNodeInfo node1 = (sharedPreferences.getBoolean("pref_watch_self", false)) ?
-                this.getTheLastNode(WECHAT_VIEW_OTHERS_CH, WECHAT_VIEW_SELF_CH) : this.getTheLastNode(WECHAT_VIEW_OTHERS_CH);
-        if (node1 != null && currentActivityName.contains(WECHAT_LUCKMONEY_GENERAL_ACTIVITY)) {
+                this.getTheLastNode(DINGTALK_VIEW_OTHERS_CH, DINGTALK_VIEW_SELF_CH) : this.getTheLastNode(DINGTALK_VIEW_OTHERS_CH);
+        if (node1 != null && currentActivityName.contains(DINGTALK_LUCKMONEY_GENERAL_ACTIVITY)) {
             String excludeWords = sharedPreferences.getString("pref_watch_exclude_words", "");
             if (this.signature.generateSignature(node1, excludeWords)) {
                 mLuckyMoneyReceived = true;
@@ -219,7 +219,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         /* 戳开红包，红包还没抢完，遍历节点匹配“拆红包” */
         AccessibilityNodeInfo node2 = findOpenButton(this.rootNodeInfo);
-        if (node2 != null && "android.widget.Button".equals(node2.getClassName()) && currentActivityName.contains(WECHAT_LUCKMONEY_RECEIVE_ACTIVITY)) {
+        if (node2 != null && "android.widget.Button".equals(node2.getClassName()) && currentActivityName.contains(DINGTALK_LUCKMONEY_RECEIVE_ACTIVITY)) {
             mUnpackNode = node2;
             mUnpackCount += 1;
             return;
@@ -227,11 +227,11 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         /* 戳开红包，红包已被抢完，遍历节点匹配“红包详情”和“手慢了” */
         boolean hasNodes = this.hasOneOfThoseNodes(
-                WECHAT_BETTER_LUCK_CH, WECHAT_DETAILS_CH,
-                WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH);
+                DINGTALK_BETTER_LUCK_CH, DINGTALK_DETAILS_CH,
+                DINGTALK_BETTER_LUCK_EN, DINGTALK_DETAILS_EN, DINGTALK_EXPIRES_CH);
         if (mMutex && eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && hasNodes
-                && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY)
-                || currentActivityName.contains(WECHAT_LUCKMONEY_RECEIVE_ACTIVITY))) {
+                && (currentActivityName.contains(DINGTALK_LUCKMONEY_DETAIL_ACTIVITY)
+                || currentActivityName.contains(DINGTALK_LUCKMONEY_RECEIVE_ACTIVITY))) {
             mMutex = false;
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
@@ -285,7 +285,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
                 if (bounds.bottom > bottom) {
                     bottom = bounds.bottom;
                     lastNode = node;
-                    if (text.equals(WECHAT_VIEW_OTHERS_CH)) {
+                    if (text.equals(DINGTALK_VIEW_OTHERS_CH)) {
                         signature.others = true;
                     } else {
                         signature.others = false;

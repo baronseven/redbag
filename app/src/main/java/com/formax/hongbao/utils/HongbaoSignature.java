@@ -14,7 +14,7 @@ public class HongbaoSignature {
         try {
             /* The hongbao container node. It should be a LinearLayout. By specifying that, we can avoid text messages. */
             AccessibilityNodeInfo hongbaoNode = node.getParent();
-            if (!"android.widget.LinearLayout".equals(hongbaoNode.getClassName())) return false;
+            if (!"android.widget.FrameLayout".equals(hongbaoNode.getClassName())) return false;
 
             /* The text in the hongbao. Should mean something. */
             String hongbaoContent = hongbaoNode.getChild(0).getText().toString();
@@ -77,12 +77,22 @@ public class HongbaoSignature {
         String[] result = {"unknownSender", "unknownTime"};
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo thisNode = node.getChild(i);
-            if ("android.widget.ImageView".equals(thisNode.getClassName())) {
-                CharSequence contentDescription = thisNode.getContentDescription();
-                if (contentDescription != null) result[0] = contentDescription.toString().replaceAll("头像$", "");
-            } else if ("android.widget.TextView".equals(thisNode.getClassName())) {
-                CharSequence thisNodeText = thisNode.getText();
-                if (thisNodeText != null) result[1] = thisNodeText.toString();
+//            if ("android.widget.ImageView".equals(thisNode.getClassName())) {
+//                CharSequence contentDescription = thisNode.getContentDescription();
+//                if (contentDescription != null) result[0] = contentDescription.toString().replaceAll("头像$", "");
+//            } else if ("android.widget.TextView".equals(thisNode.getClassName())) {
+//                CharSequence thisNodeText = thisNode.getText();
+//                if (thisNodeText != null) result[1] = thisNodeText.toString();
+//            }
+            if ("android.widget.TextView".equals(thisNode.getClassName())) {
+                if(i == 0) {
+                    CharSequence thisNodeText = thisNode.getText();
+                    if (thisNodeText != null) result[0] = thisNodeText.toString();
+                }
+                if(i == 3){
+                    CharSequence thisNodeText = thisNode.getText();
+                    if (thisNodeText != null) result[1] = thisNodeText.toString();
+                }
             }
         }
         return result;
