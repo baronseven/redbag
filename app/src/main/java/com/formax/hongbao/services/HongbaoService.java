@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class HongbaoService extends AccessibilityService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String DINGTALK_DETAILS_EN = "Details";
-    private static final String DINGTALK_DETAILS_CH = "红包详情";
+    private static final String DINGTALK_DETAILS_CH = "钉钉红包";
     private static final String DINGTALK_BETTER_LUCK_EN = "Better luck next time!";
     private static final String DINGTALK_BETTER_LUCK_CH = "手慢了";
     private static final String DINGTALK_EXPIRES_CH = "红包已失效";
@@ -32,7 +32,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     private static final String DINGTALK_VIEW_OTHERS_CH = "拆红包";
     private static final String DINGTALK_NOTIFICATION_TIP = "[钉钉红包]";
     private static final String DINGTALK_LUCKMONEY_RECEIVE_ACTIVITY = "LuckyMoneyReceiveUI";
-    private static final String DINGTALK_LUCKMONEY_DETAIL_ACTIVITY = "LuckyMoneyDetailUI";
+    private static final String DINGTALK_LUCKMONEY_DETAIL_ACTIVITY = "RedPacketsDetailActivity";
     private static final String DINGTALK_LUCKMONEY_GENERAL_ACTIVITY = "ChatMsgActivity";
     private String currentActivityName = DINGTALK_LUCKMONEY_GENERAL_ACTIVITY;
 
